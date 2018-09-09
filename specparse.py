@@ -27,6 +27,20 @@ def get_spec(filepath, start=380, end=780):
         data_OrderedDict = OrderedDict(data_zip[start_index:end_index+1])
         return data_OrderedDict 
 
+def spfile2csv(dirpath):
+    """直接将目录内的sp文件转换为csv文件
+    ::dirpath(str): 
+    """
+    files = [x for x in os.listdir(dirpath) if os.path.splitext(x)[1]=='.sp']
+    for f in files:
+        spec_data = get_spec('%s/%s' % (dirpath,f))
+        csv_name = f.split('_')[0] + '.csv'
+        value_list = list(spec_data.values())
+        start = min(spec_data.keys())
+        end = max(spec_data.keys())
+        df = pd.DataFrame({'values':value_list}, index=range(start, end+1))
+        df.to_csv(csv_name)
+    
 def get_specs(dirpath):
     """
     将目标文件夹所有的仪器导出数据转换成纯粹的光谱数据
@@ -76,6 +90,3 @@ if __name__ == "__main__":
     pathname = 'spectral/red1_2018_09_05_19_44_52.sp'
     single_spd_plotting(pathname, spec_name="Red1")
     """
-    pathname = 'spectral/red1_2018_09_05_19_44_52.sp'
-    single_spd_plotting(pathname, spec_name="Red1")
-
