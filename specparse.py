@@ -5,7 +5,7 @@ from collections import OrderedDict
 import colour
 import colour.plotting
 
-def get_spec(filepath, start=380, end=780):
+ get_spec(filepath, start=380, end=780):
     """
     将仪器导出的数据转换成纯粹的光谱数据
     :filepath (str)
