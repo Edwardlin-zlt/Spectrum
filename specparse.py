@@ -5,7 +5,7 @@ from collections import OrderedDict
 import colour
 import colour.plotting
 
- get_spec(filepath, start=380, end=780):
+def get_spec(filepath, start=380, end=780):
     """
     将仪器导出的数据转换成纯粹的光谱数据
     :filepath (str)
@@ -33,7 +33,7 @@ def spfile2csv(dirpath):
     """
     files = [x for x in os.listdir(dirpath) if os.path.splitext(x)[1]=='.sp']
     for f in files:
-        spec_data = get_spec('%s/%s' % (dirpath,f))
+        spec_data = get_spec(os.path.join(dirpath, f))
         csv_name = f.split('_')[0] + '.csv'
         value_list = list(spec_data.values())
         start = min(spec_data.keys())

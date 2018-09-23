@@ -6,9 +6,16 @@
 Author: Edward
 Email: Edwardlin.zlt@gmail.com
 """
+
+# import modules----------------------------------------
 import re
-from keys import keys
+import os
 from collections import OrderedDict
+
+import pandas as pd
+
+from keys import keys
+# import modules down-------------------------------------
 
 class Spectrum(object):
     """
@@ -24,9 +31,8 @@ class Spectrum(object):
         """
         self.__data, self.spec_dict = get_spec(filepath)
     
-    
     def get(self, attr):
-        return self.__data.get(attr)
+        return self.__data.get(attr,0)
     
     def __str__(self):
         return str(self.__data)
@@ -38,9 +44,9 @@ def get_spec(filepath, start=380, end=780):
     :filepath (str)
     :start(int) 开始的波长
     :end (int) 结束的波长取值
-    :re (OrderedDict) spec_data OrderedDict from 350 to 1000
+    :re (tuple of spec_data_info and 光谱能量分布) 光谱信息和380-780之间的光谱能量分布
     """
-    former = r'(.*data=")([,\.\d-]*)(".*mfp=")(.*)(" \/>)'
+    former = r'(.*data=")([,\.\dE-]*)(".*mfp=")(.*)(" \/>)'
 
     with open(filepath) as f:
         raw_data = f.read() 
@@ -57,7 +63,28 @@ def get_spec(filepath, start=380, end=780):
         spec_dict= OrderedDict(raw_spec[start_index:end_index+1])
         return (data, spec_dict) 
 
+def sps_to_one_csv(dirpath):
+    """
+    将一个文件夹内所有的光谱文件信息放在一个表格里
+    :: dirpath(str): 目标文件夹
+    :: re(None): 在当前目录导出一个csv文件
+    """
+    columns = keys.copy()
+    columns.insert(0, 'name')
+    df = pd.DataFrame(None, columns= columns)
+    i = 0
+    files = [x for x in os.listdir(dirpath) if os.path.splitext(x)[1] == '.sp']
+    print(files)
+    for f in files:
+        print("i: ", i)
+        print("f: ", f)
+        temp_spec = Spectrum(os.path.join(dirpath,f))
+        incre_info = [temp_spec.get(x) for x in keys]
+        incre_info.insert(0, f.split('_')[0])
+        print(list(zip(columns, incre_info)))
+        df.loc[i] = incre_info
+        i += 1
+    df.to_csv(os.path.join(dirpath, 'all.csv'))
 
-pathname = 'spectral/red1_2018_09_05_19_44_52.sp'
-red1 = Spectrum(pathname)
-
+dirname = './spectral'
+sps_to_one_csv(dirname)
