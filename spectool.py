@@ -15,6 +15,7 @@ import pandas as pd
 import numpy as np
 import colour
 import colour.plotting as cpt
+import pylab
 
 from keys import keys
 # import modules done-------------------------------------
@@ -24,18 +25,28 @@ class Spectrum(object):
     导入仪器数据，将其数据定义成一个光谱对象，主要属性有`data`和`spec_dict`
     """
 
-    def __init__(self,filepath):
+    def __init__(self,filepath, name):
         """
-        ::filepath (str): 仪器文件路径
+        ::filepath (str): 仪器文件绝对路径
         ::self.__data (dict): 包含亮度，色度坐标等信息的字典
         ::self.__spec_dict: SPD数据，默认为380-780之间的数据
         """
-        self.filepath = os.path.join(os.getcwd(),filepath)
+        # 文件路径，绝对路径最好
+        self.filepath = filepath
+        self.name = name 
         self._data, self.spec_dict = self.get_spec()
+        self.x = self._data['x']
+        self.y = self._data['y']
         self.xy_measure = np.array([self._data['x'],self._data['y']], dtype='float64')
         self.spd = self.to_spd()
         self.XYZ = self.spd_to_XYZ()
 
+    def __str__(self):
+        return (self.name, str(self._data))
+
+    def __repr__(self):
+        return self.name
+    
     # 解析仪器测试出的sp文件
     def get_spec(self, start=380, end=780):
         """
@@ -65,17 +76,14 @@ class Spectrum(object):
             return (data, spec_dict) 
     
     # 将一般的光谱字典`spec_dict`变成`colour`模块的光谱对象
-    def to_spd(self, name='Sample'):
-        self.spd = colour.SpectralPowerDistribution(self.spec_dict, name=name)
+    def to_spd(self):
+        self.spd = colour.SpectralPowerDistribution(self.spec_dict, name=self.name)
         return self.spd
 
     #用于取得data中的某一项值，如亮度
     def get(self, attr):
         return self._data.get(attr,0)
     
-    def __str__(self):
-        return str(self._data)
-
 
     # 相关属性计算换算
 
@@ -124,6 +132,33 @@ def sps_to_one_csv(dirpath):
         i += 1
     df.to_csv(os.path.join(dirpath, 'all.csv'))
 
-#if __name__ == "__main__":
+#TODO传入多个光谱数据，将他们画在同一张 CIE1931图上
+def spcs_in_one_diagram(*specs):
+    """传入多个光谱数据，将他们画在同一张 CIE1931图上
+    :: specs (instances of spectrum class): 该程序定义的类的实例
+    :: re: None
+    """
+    num = len(specs)
+    x = []
+    y = []
+    for spec in specs:
+        x.append(spec.x)
+        y.append(spec.y)
+    cpt.chromaticity_diagram_plot_CIE1931(standalone=False)
+    pylab.plot(x, y, 'o', color='k', mew=1, mec='k', alpha=0.5)
+    # displaying the plot
+    cpt.render(
+            standalong=True,
+            limits=(-0.1, 0.9, -0.1, 0.9),
+            x_tighten=True,
+            y_tighten=True)
+
+
+
+if __name__ == "__main__":
     #dirname = './spectral'
     #sps_to_one_csv(dirname)
+    specs = [Spectrum(os.path.join('/home/edward/Documents/Major/spectral', x)) for x in os.listdir('/home/edward/Documents/Major/spectral') if os.path.splitext(x)[1] == '.sp']
+    
+    spcs_in_one_diagram(*specs)
+

@@ -1,8 +1,9 @@
 """
 Just for save the keys infomation
 """
-keys = ['L （cd/m2)',
- 'Le (W/sr/m2)',
+# L(cd/m2), Le(W/sr/m2)
+keys = ['L',
+ 'Le',
  'x',
  'y',
  'u',
