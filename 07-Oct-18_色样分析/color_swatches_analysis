@@ -1,0 +1,60 @@
+import os
+
+from pyecharts import Bar
+
+from spectool import *
+
+# import all the spec_info
+spec_file_path = '/home/edward/Documents/Major/spec_info/2018_10_05/'
+spec_file_names = [x for x in os.listdir(spec_file_path)]
+print(spec_file_names)
+spec_file_names.sort()
+print(spec_file_names)
+
+
+## file groups
+red_files = [os.path.join(spec_file_path, x) for x in spec_file_names if x.startswith('red')]
+blue_files = [os.path.join(spec_file_path, x) for x in spec_file_names if x.startswith('blue')]
+green_files = [os.path.join(spec_file_path, x) for x in spec_file_names if x.startswith('green')]
+white_files = [os.path.join(spec_file_path, x) for x in spec_file_names if x.startswith('white')]
+print(red_files)
+print(blue_files)
+print(green_files)
+print(white_files)
+
+# Turn file_paths into Spectrum instance
+def name_files(files):
+   """generator to yield a tuple of (file, num)
+   :: files -> list: the file_name list
+   :: yield -> tuple: (file_path, num)
+   """
+   num = 1
+   for f in files:
+       yield (f, num)
+       num += 1
+
+reds = [Spectrum(x, 'red%d' % y) for x,y in zip(red_files,range(1,7))]
+blues = [Spectrum(x, 'blue%d' % y) for x,y in zip(blue_files, range(1, 7))]
+greens = [Spectrum(x, 'green%d' % y) for x,y in zip(green_files, range(1, 7))]
+whites = [Spectrum(x, 'white%d' % y) for x,y in zip(white_files, range(1, 7))]
+print(reds)
+print(blues)
+print(greens)
+print(whites)
+
+# plotting all swatches' luminance info in one bar diagram
+bar_diag = Bar('样本组亮度分析')
+#bar_diag.add('红', [str(x) for x in range(1,7)], [x.get('L') for x in reds], is_stack=True) 
+#bar_diag.add('蓝', [str(x) for x in range(1,7)], [x.get('L') for x in blues],is_stack=True) 
+#bar_diag.add('绿', [str(x) for x in range(1,7)], [x.get('L') for x in greens],is_stack=True) 
+
+bar_diag.add('红', [str(x) for x in range(1,7)], [x.get('L') for x in reds], ) 
+bar_diag.add('蓝', [str(x) for x in range(1,7)], [x.get('L') for x in blues],) 
+bar_diag.add('绿', [str(x) for x in range(1,7)], [x.get('L') for x in greens],) 
+bar_diag.add('白', [str(x) for x in range(1,7)], [x.get('L') for x in whites],) 
+
+bar_diag.render()
+
+# plotting all swatches' xy coordinates in one CIE_1931 diagram
+
+
